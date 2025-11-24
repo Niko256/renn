@@ -2,7 +2,6 @@
 
 #include "../DynamicArray.hpp"
 #include "../List.hpp"
-#include "../Pair.hpp"
 #include "Hashers/CityHash.hpp"
 #include "Hashers/MurmurHash.hpp"
 #include <cmath>
@@ -13,16 +12,17 @@
 #include <stdexcept>
 #include <utility>
 
-namespace ds::containers {
+namespace renn::containers {
 
 template <typename Key, typename Value,
           typename Hash = std::hash<Key>, typename KeyEqual = std::equal_to<Key>,
-          typename Allocator = std::allocator<Pair<Key, Value>>>
+          typename Allocator = std::allocator<std::pair<Key, Value>>>
+
 
 class HashTable {
   private:
     struct HashNode {
-        Pair<const Key, Value> data_;
+        std::pair<const Key, Value> data_;
         size_t cached_hash_;  // Cached hash value for perfomance
 
         HashNode(size_t hash, Key& k, Value& v) : cached_hash_(hash), data_(k, v) {}
@@ -41,19 +41,21 @@ class HashTable {
     };
 
   public:
+    using BaseNodeType = std::pair<const Key, Value>;
+    using AllocTraits = std::allocator_traits<Allocator>;
+    using ListType = List<HashNode, typename AllocTraits::template rebind_alloc<BaseNodeType>>;
+    using ListIterator = typename ListType::iterator;
+    using ConstListIterator = typename ListType::const_iterator;
+    using ListIteratorAlloc = typename AllocTraits::template rebind_alloc<ListIterator>;
+
+
+  public:
     struct HashTableRef {
         const Key& first;
         Value& second;
 
         HashTableRef(const Key& k, Value& v) : first(k), second(v) {}
     };
-
-    using BaseNodeType = Pair<const Key, Value>;
-    using AllocTraits = std::allocator_traits<Allocator>;
-    using ListType = List<HashNode, typename AllocTraits::template rebind_alloc<BaseNodeType>>;
-    using ListIterator = typename ListType::iterator;
-    using ConstListIterator = typename ListType::const_iterator;
-    using ListIteratorAlloc = typename AllocTraits::template rebind_alloc<ListIterator>;
 
     struct iterator {
         typename ListType::iterator it_;
@@ -137,22 +139,6 @@ class HashTable {
             return &(*it_);
         }
     };
-
-  private:
-    // ----------------------------------------------
-
-    Hash hash_;
-    KeyEqual equal_;  // comparator
-    Allocator allocator_;
-    ListType elements_;
-    DynamicArray<ListIterator> hash_table_;
-
-    size_t size_;                            // Number of elements
-    size_t bucket_count_{MIN_BUCKET_COUNT};  // Number of buckets
-    size_t rehash_threshold_;                // Threshold for rehashing
-
-    static constexpr float MAX_LOAD_FACTOR = 0.8f;
-    static constexpr size_t MIN_BUCKET_COUNT = 7;
 
   public:
     // -----------------------------------------------
@@ -283,7 +269,7 @@ class HashTable {
         }
     }
 
-    HashTable(std::initializer_list<Pair<const Key, Value>> init) : HashTable() {
+    HashTable(std::initializer_list<std::pair<const Key, Value>> init) : HashTable() {
         for (const auto& item : init) {
             insert(item);
         }
@@ -324,7 +310,7 @@ class HashTable {
     }
 
     template <typename... Args>
-    Pair<iterator, bool> emplace(Args&&... args) {
+    std::pair<iterator, bool> emplace(Args&&... args) {
         try {
 
             // Create a temporary pair from forwarded arguments
@@ -390,7 +376,7 @@ class HashTable {
     }
 
     template <typename... Args>
-    Pair<iterator, bool> try_emplace(const Key& key, Args&&... args) {
+    std::pair<iterator, bool> try_emplace(const Key& key, Args&&... args) {
         auto it = find(key);
         if (it != end()) {
             return {it, false};
@@ -617,5 +603,19 @@ class HashTable {
         }
         return prime;
     }
+
+  private:
+    Hash hash_;
+    KeyEqual equal_;  // comparator
+    Allocator allocator_;
+    ListType elements_;
+    DynamicArray<ListIterator> hash_table_;
+
+    size_t size_;                            // Number of elements
+    size_t bucket_count_{MIN_BUCKET_COUNT};  // Number of buckets
+    size_t rehash_threshold_;                // Threshold for rehashing
+
+    static constexpr float MAX_LOAD_FACTOR = 0.8f;
+    static constexpr size_t MIN_BUCKET_COUNT = 7;
 };
-}  // namespace ds::containers
+}  // namespace renn::containers

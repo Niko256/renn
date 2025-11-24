@@ -1,4 +1,4 @@
-#include "../src/Concurrency/Spinlock/Spinlock.hpp"
+#include "../src/Spinlock/Spinlock.hpp"
 #include "gtest/gtest.h"
 #include <atomic>
 #include <chrono>
@@ -8,7 +8,7 @@
 #include <vector>
 
 
-using Spinlock = ds::sync::Spinlock;
+using Spinlock = renn::sync::Spinlock;
 
 class SpinlockBasicTest : public ::testing::Test {
   protected:

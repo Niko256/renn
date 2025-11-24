@@ -1,2 +1,14 @@
-ADD_SUBDIRECTORY(Concurrency)
-ADD_SUBDIRECTORY(SmartPtrs)
+ADD_SUBDIRECTORY(Spinlock)
+ADD_SUBDIRECTORY(Scheduling)
+# ADD_SUBDIRECTORY(WaitGroup)
+ADD_SUBDIRECTORY(Fiber)
+ADD_SUBDIRECTORY(Coroutine)
+#ADD_SUBDIRECTORY(Future)
+
+ADD_LIBRARY(Concurrency INTERFACE
+  Spinlock
+  # Scheduling
+  Coroutine
+  Fiber
+  WaitGroup
+)

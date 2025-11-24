@@ -1,5 +1,5 @@
-#include "../src/Concurrency/Scheduling/ThreadPool/ThreadPool.hpp"
-#include "../src/Concurrency/WaitGroup/WaitGroup.hpp"
+#include "../src/Scheduling/ThreadPool/ThreadPool.hpp"
+#include "../src/WaitGroup/WaitGroup.hpp"
 #include <atomic>
 #include <future>
 #include <gtest/gtest.h>
@@ -11,8 +11,8 @@
 
 using namespace std::chrono_literals;
 
-using WaitGroup = ds::sync::WaitGroup;
-using ThreadPool = ds::runtime::ThreadPool;
+using WaitGroup = renn::sync::WaitGroup;
+using ThreadPool = renn::ThreadPool;
 
 TEST(WaitGroupTest, ConcurrentDone) {
     WaitGroup wg;

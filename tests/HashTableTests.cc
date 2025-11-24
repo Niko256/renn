@@ -7,7 +7,7 @@
 #include <string>
 
 template <typename Key, typename Value, typename Hash = std::hash<Key>>
-using HashTable = ds::containers::HashTable<Key, Value, Hash>;
+using HashTable = renn::containers::HashTable<Key, Value, Hash>;
 
 class HashTableTest : public ::testing::Test {
   protected:

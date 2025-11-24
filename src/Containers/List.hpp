@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace ds::containers {
+namespace renn::containers {
 
 template <typename T, typename Allocator = std::allocator<T>>
 class List {
@@ -344,4 +344,4 @@ class List {
         return emplace(position, std::move(value));
     }
 };
-}  // namespace ds::containers
+}  // namespace renn::containers

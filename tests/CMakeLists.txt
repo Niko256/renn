@@ -30,14 +30,6 @@ TARGET_LINK_LIBRARIES(ThreadPoolTests PRIVATE
 gtest_discover_tests(ThreadPoolTests)
 
 
-ADD_EXECUTABLE(SmartPtrsTests SmartPtrsTests.cc)
-TARGET_LINK_LIBRARIES(SmartPtrsTests PRIVATE
-  SmartPtrs
-  gtest_main
-)
-gtest_discover_tests(SmartPtrsTests)
-
-
 ADD_EXECUTABLE(FiberTests FiberTests.cc)
 TARGET_LINK_LIBRARIES(FiberTests PRIVATE
   Fiber

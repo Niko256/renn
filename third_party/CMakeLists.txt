@@ -14,36 +14,54 @@ FetchContent_Declare(
     GIT_TAG master
 )
 
+# sure ^-^
 FetchContent_Declare(
     sure
     GIT_REPOSITORY https://gitlab.com/Lipovsky/sure.git
     GIT_TAG master
 )
 
-
+# sure-stack
 FetchContent_Declare(
     sure-stack
     GIT_REPOSITORY https://gitlab.com/Lipovsky/sure-stack.git
     GIT_TAG master
 )
 
+# Horovod ^_^
 FetchContent_Declare(
     vvv
     GIT_REPOSITORY https://gitlab.com/Lipovsky/vvv.git
     GIT_TAG master
 )
 
+# fu2
 FetchContent_Declare(
   function2
   GIT_REPOSITORY https://github.com/Naios/function2.git
   GIT_TAG master
 )
 
+# futex-like
+FetchContent_Declare(
+  futex-like
+  GIT_REPOSITORY https://gitlab.com/Lipovsky/futex_like.git
+  GIT_TAG master
+)
 
-FetchContent_MakeAvailable(googletest smhasher sure sure-stack vvv function2)
 
-message(STATUS "function2 populated: ${function2_POPULATED}")
-message(STATUS "function2 source dir: ${function2_SOURCE_DIR}")
+FetchContent_MakeAvailable(
+  googletest
+  smhasher
+  sure
+  sure-stack
+  vvv
+  function2
+  futex-like
+)
+
+#message(STATUS "function2 populated: ${function2_POPULATED}")
+#message(STATUS "function2 source dir: ${function2_SOURCE_DIR}")
 
 # ALIASES
 IF(sure_POPULATED)
@@ -74,4 +92,10 @@ IF (function2_POPULATED)
       ${function2_SOURCE_DIR}/include)
 ELSE()
     message(STATUS "Function2 include: ${function2_SOURCE_DIR}/include")
+ENDIF()
+
+IF (futex-like_POPULATED)
+  ADD_LIBRARY(third_party_futex-like INTERFACE)
+  TARGET_INCLUDE_DIRECTORIES(third_party_futex-like INTERFACE
+      ${futex-like_SOURCE_DIR}/source)
 ENDIF()

@@ -26,7 +26,7 @@ void ThreadPool::start() {
     }
 }
 
-/// submits tasks for execution
+/// submits renns for execution
 /// [condition] : it must be called after start() and before stop()
 void ThreadPool::submit(renn::Renn&& procedure) {
     // just ensure here that user follows the pool's lifecycle 'contract'
@@ -36,11 +36,11 @@ void ThreadPool::submit(renn::Renn&& procedure) {
         return;
     }
 
-    tasks_.push(std::move(procedure));
+    renns_.push(std::move(procedure));
 }
 
 /// Stops the pool [waits for all worker threads to finish]
-/// => no new tasks will be submitted
+/// => no new renns will be submitted
 /// ![must be called only once]!
 void ThreadPool::stop() {
     // another ensuring that user follow stop rules
@@ -48,8 +48,8 @@ void ThreadPool::stop() {
 
     stopped_.store(true);
 
-    // closing the queue is th signal to worker threads to stop working for new tasks and exit their loop
-    tasks_.close();
+    // closing the queue is th signal to worker threads to stop working for new renns and exit their loop
+    renns_.close();
 
     // waits for all worker threads to complete their execution
     // [bc when stop() returns, all thread resources must be released]
@@ -66,29 +66,29 @@ ThreadPool* ThreadPool::current() {
 }
 
 /// Main loop for each worker-thread
-/// [every worker continuously pulls tasks from the queue and exec them, 'till queue is empty and closed]
+/// [every worker continuously pulls renns from the queue and exec them, 'till queue is empty and closed]
 void ThreadPool::worker_loop() {
     current_pool_ = this;
 
     while (true) {
-        // pops blocks untill task is available OR the queue is closed
-        std::optional<renn::Renn> task = tasks_.pop();
+        // pops blocks untill renn is available OR the queue is closed
+        std::optional<renn::Renn> renn = renns_.pop();
 
-        if (!task) {
+        if (!renn) {
             // the worker's job is done
             break;
         }
 
         try {
-            // executing the task
-            (*task)();
+            // executing the renn
+            (*renn)();
         } catch (...) {
 
-            // if a submitted task throws an exception that is doesn't handle internally, we catch it here
+            // if a submitted renn throws an exception that is doesn't handle internally, we catch it here
             //
-            // !!! : A task that allows an exception to escape is violating its contract
+            // !!! : A renn that allows an exception to escape is violating its contract
             // !!! and has likely left application in a corrupted, unknowm state [broken invariants etc..]
-            // !!! The ThreadPool's responsibility is to execute tasks, not to reason about their internal logic or error handling
+            // !!! The ThreadPool's responsibility is to execute renns, not to reason about their internal logic or error handling
             // !!! Thus continuing execution would be unsafe => the only responsible action is to terminate entire program to prevent further damage
 
             std::terminate();

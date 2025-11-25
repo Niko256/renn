@@ -16,13 +16,13 @@ using ThreadPool = renn::ThreadPool;
 
 TEST(WaitGroupTest, ConcurrentDone) {
     WaitGroup wg;
-    const size_t task_count = 1000;
+    const size_t renn_count = 1000;
     std::vector<std::thread> threads;
     std::atomic<int> cnt;
 
-    wg.add(task_count);
+    wg.add(renn_count);
 
-    for (size_t i = 0; i < task_count; ++i) {
+    for (size_t i = 0; i < renn_count; ++i) {
         threads.emplace_back([&] {
             cnt.fetch_add(1);
             wg.done();
@@ -40,20 +40,20 @@ TEST(WaitGroupTest, ConcurrentDone) {
 
 TEST(WaitGroupTest, BlocksUntilDone) {
     WaitGroup wg;
-    std::atomic<bool> task_done = false;
+    std::atomic<bool> renn_done = false;
 
     wg.add(1);
 
-    std::jthread task_thread([&] {
+    std::jthread renn_thread([&] {
         std::this_thread::sleep_for(100ms);
-        task_done.store(true);
+        renn_done.store(true);
 
         wg.done();
     });
 
     wg.wait();
 
-    ASSERT_TRUE(task_done);
+    ASSERT_TRUE(renn_done);
 }
 
 class ThreadPoolTests : public ::testing::Test {
@@ -70,7 +70,7 @@ class ThreadPoolTests : public ::testing::Test {
     }
 };
 
-TEST_F(ThreadPoolTests, ExecutesOneTask) {
+TEST_F(ThreadPoolTests, ExecutesOneRenn) {
     std::promise<void> pr;
     auto future = pr.get_future();
 
@@ -82,32 +82,32 @@ TEST_F(ThreadPoolTests, ExecutesOneTask) {
     ASSERT_EQ(status, std::future_status::ready);
 }
 
-TEST_F(ThreadPoolTests, ExecuteManyTasks) {
-    const size_t task_count = 10000;
+TEST_F(ThreadPoolTests, ExecuteManyRenns) {
+    const size_t renn_count = 10000;
     WaitGroup wg;
-    std::atomic<size_t> tasks_executed{0};
+    std::atomic<size_t> renns_executed{0};
 
-    wg.add(task_count);
-    for (size_t i = 0; i < task_count; ++i) {
+    wg.add(renn_count);
+    for (size_t i = 0; i < renn_count; ++i) {
         pool_->submit([&] {
-            tasks_executed.fetch_add(1);
+            renns_executed.fetch_add(1);
             wg.done();
         });
     }
 
     wg.wait();
 
-    ASSERT_EQ(tasks_executed.load(), task_count);
+    ASSERT_EQ(renns_executed.load(), renn_count);
 }
 
-TEST_F(ThreadPoolTests, TasksRunOnDifferentThreads) {
-    const size_t task_count = 50;
+TEST_F(ThreadPoolTests, rennsOnDifferentThreads) {
+    const size_t renn_count = 50;
     WaitGroup wg;
     std::mutex mtx;
     std::set<std::thread::id> threads_ids;
 
-    wg.add(task_count);
-    for (size_t i = 0; i < task_count; ++i) {
+    wg.add(renn_count);
+    for (size_t i = 0; i < renn_count; ++i) {
         pool_->submit([&] {
             {
                 std::lock_guard<std::mutex> lock(mtx);
@@ -118,7 +118,7 @@ TEST_F(ThreadPoolTests, TasksRunOnDifferentThreads) {
         });
     }
 
-    // ensure that all tasks has been hinished
+    // ensure that all renns has been hinished
     wg.wait();
 
     ASSERT_GT(threads_ids.size(), 1);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Scheduling/Task.hpp"
+#include "../Utils/Renn.hpp"
 #include "Fiber.hpp"
 
 namespace renn {

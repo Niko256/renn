@@ -1,0 +1,11 @@
+#pragma once
+
+#include "Result.hpp"
+#include "function2/function2.hpp"
+
+namespace renn {
+
+template <typename T>
+using Callback = fu2::unique_function<void(Result<T>)>;
+
+};

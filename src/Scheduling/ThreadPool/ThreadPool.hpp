@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../../Utils/Renn.hpp"
 #include "../IScheduler.hpp"
-#include "../Task.hpp"
 #include "Queue.hpp"
 #include <atomic>
 #include <cassert>
@@ -34,8 +34,8 @@ class ThreadPool : public sched::IScheduler {
 
     void submit(Renn&& procedure) override;
 
-    /// TODO : [FEATURE] Implement std::future-based version of submit method for tasks that return values
-    /// [this would allow the pool to handle tasks that return values]
+    /// TODO : [FEATURE] Implement std::future-based version of submit method for renns that return values
+    /// [this would allow the pool to handle renns that return values]
     ///
     /// The signature should looks like:
     ///
@@ -46,7 +46,7 @@ class ThreadPool : public sched::IScheduler {
     void worker_loop();
 
   private:
-    UnboundedBlockingQueue<Renn> tasks_;
+    UnboundedBlockingQueue<Renn> renns_;
     const size_t num_threads_;
     std::vector<std::thread> workers_;
 

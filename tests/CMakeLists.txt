@@ -37,6 +37,7 @@ TARGET_LINK_LIBRARIES(FiberTests PRIVATE
   Coroutine
   third_party_sure
   gtest_main
+  third_party_futex_like
   # fmt::fmt
 )
 gtest_discover_tests(FiberTests)

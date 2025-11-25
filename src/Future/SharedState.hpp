@@ -18,7 +18,7 @@ class SharedState {
 
   private:
     StateMachine state_;
-    Result<T> result_;
+    utils::Result<T> result_;
     Callback<T> callback_;
 };
 

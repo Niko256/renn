@@ -6,7 +6,9 @@ ADD_SUBDIRECTORY(Coroutine)
 ADD_SUBDIRECTORY(Future)
 ADD_SUBDIRECTORY(Utils)
 
-ADD_LIBRARY(Concurrency INTERFACE
+ADD_LIBRARY(Concurrency INTERFACE)
+
+TARGET_LINK_LIBRARIES(Concurrency INTERFACE
   Spinlock
   Scheduling
   Coroutine

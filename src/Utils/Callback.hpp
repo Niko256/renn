@@ -6,6 +6,6 @@
 namespace renn {
 
 template <typename T>
-using Callback = fu2::unique_function<void(Result<T>)>;
+using Callback = fu2::unique_function<void(utils::Result<T>)>;
 
 };

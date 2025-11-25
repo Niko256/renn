@@ -3,6 +3,7 @@
 
 #include "../src/Fiber/Fiber.hpp"
 #include "../src/Fiber/Go.hpp"
+#include "../src/Future/Event.hpp"
 #include "Fiber.hpp"
 #include "Go.hpp"
 #include <arpa/inet.h>

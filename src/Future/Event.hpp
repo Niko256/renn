@@ -1,20 +1,26 @@
 #pragma once
 
-#include "../Utils/Futex.hpp"
 #include <atomic>
-#include <cstdint>
+#include <futex_like/wait_wake.hpp>
 
 namespace renn {
 
 class Event {
   public:
     void wait() {
+        while (!ready_.load()) {
+            futex_like::WaitOnce(ready_, 0);
+        }
     }
 
-    void fire();
+    void fire() {
+        auto wake_key = futex_like::PrepareWake(ready_);
+        ready_.store(1);
+        futex_like::WakeAll(wake_key);
+    }
 
   private:
-    std::atomic<uint32_t> ready_{0};
+    std::atomic_uint32_t ready_{0};
 };
 
 };  // namespace renn

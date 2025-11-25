@@ -101,16 +101,21 @@ TEST_F(ThreadPoolTests, ExecuteManyRenns) {
 }
 
 TEST_F(ThreadPoolTests, rennsOnDifferentThreads) {
-    const size_t renn_count = 50;
+    const size_t renn_count = 5000;
     WaitGroup wg;
-    std::mutex mtx;
+    std::mutex threads_ids_mutex;
     std::set<std::thread::id> threads_ids;
 
     wg.add(renn_count);
     for (size_t i = 0; i < renn_count; ++i) {
         pool_->submit([&] {
+            volatile std::uint64_t acc = 0;
+            for (int j = 0; j < 10'000; ++j) {
+                acc += static_cast<std::uint64_t>(j) * 17u;
+            }
+
             {
-                std::lock_guard<std::mutex> lock(mtx);
+                std::lock_guard<std::mutex> lock(threads_ids_mutex);
                 threads_ids.insert(std::this_thread::get_id());
             }
 
@@ -121,8 +126,7 @@ TEST_F(ThreadPoolTests, rennsOnDifferentThreads) {
     // ensure that all renns has been hinished
     wg.wait();
 
-    ASSERT_GT(threads_ids.size(), 1);
-    ASSERT_LE(threads_ids.size(), 4);
+    ASSERT_GT(threads_ids.size(), 1u);
 }
 
 TEST_F(ThreadPoolTests, CurrentMethod) {

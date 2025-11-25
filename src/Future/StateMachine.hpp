@@ -1,18 +1,25 @@
 #pragma once
 
+#include <atomic>
 #include <cstdint>
 
 class StateMachine {
   public:
-    void consume();
+    bool consume() {
+        return state_.fetch_or(States::Consumer) == States::Producer;
+    }
 
-    void produce();
+    bool produce() {
+        return state_.fetch_or(States::Producer) == States::Consumer;
+    }
 
   private:
-    enum _ : uint16_t {
+    enum States : uint64_t {
         Init = 0,
         Producer = 1,
         Consumer = 2,
         Rendezvouz = Producer | Consumer,
     };
+
+    std::atomic<States> state_{States::Init};
 };

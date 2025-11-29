@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../Utils/Renn.hpp"
-#include "Fiber.hpp"
+#include "../../Runtime/Core/RtView.hpp"
+#include "../../Utils/Renn.hpp"
+#include "../Core/Fiber.hpp"
 
 namespace renn {
 
-void go(renn::sched::IScheduler&, renn::Renn&&);
+void go(renn::RtView, renn::Renn&&);
 
 void go(renn::Renn&&);
 

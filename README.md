@@ -1,8 +1,10 @@
-**renn**
+# renn
+
+---
 
 A tiny experimental async runtime for learning and playing with concurrency.
 
-> Warning : this project exists purely for education and experimentation. Do not use it in production. Ever.
+> Warning : this project exists purely for education and experimentation!!!
 
 ---
 

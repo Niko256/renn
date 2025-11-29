@@ -1,14 +1,16 @@
 #include "Handle.hpp"
+#include "Fiber.hpp"
 #include <algorithm>
+#include <cassert>
 #include <utility>
 
-namespace renn {
+namespace renn::fiber {
 
 bool FiberHandle::is_valid() const {
     return fiber_ != nullptr;
 }
 
-Fiber* FiberHandle::release() {
+renn::Fiber* FiberHandle::release() {
     assert(is_valid());
     return std::exchange(fiber_, nullptr);
 }
@@ -30,4 +32,9 @@ FiberHandle& FiberHandle::operator=(FiberHandle&& other) noexcept {
     return *this;
 }
 
-};  // namespace renn
+RtView FiberHandle::get_runtime() {
+    assert(fiber_);
+    return this->fiber_->current_scheduler();
+}
+
+};  // namespace renn::fiber

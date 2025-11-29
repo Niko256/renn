@@ -1,12 +1,18 @@
 #pragma once
-
-#include "Fiber.hpp"
+#include "../Runtime/Core/RtView.hpp"
 
 namespace renn {
+/* forward declaration */
+class Fiber;
+};  // namespace renn
+
+namespace renn::fiber {
 
 class FiberHandle {
   public:
     FiberHandle() = default;
+
+    FiberHandle(renn::Fiber* fiber) : fiber_(fiber) {}
 
     ~FiberHandle() = default;
 
@@ -20,15 +26,14 @@ class FiberHandle {
 
     bool is_valid() const;
 
-    Fiber* release();
+    renn::Fiber* release();
 
     void schedule();
 
-  private:
-    FiberHandle(Fiber* fiber) : fiber_(fiber) {}
+    RtView get_runtime();
 
   private:
     renn::Fiber* fiber_ = nullptr;
 };
 
-};  // namespace renn
+};  // namespace renn::fiber

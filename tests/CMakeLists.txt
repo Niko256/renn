@@ -25,7 +25,7 @@ ADD_EXECUTABLE(ThreadPoolTests ThreadPoolTests.cc)
 TARGET_LINK_LIBRARIES(ThreadPoolTests PRIVATE
   ThreadPool
   gtest_main
-  Scheduling
+  Runtime
 )
 gtest_discover_tests(ThreadPoolTests)
 

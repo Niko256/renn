@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../Utils/Renn.hpp"
-#include "../IScheduler.hpp"
+#include "../Core/IExecutor.hpp"
 #include "Queue.hpp"
 #include <atomic>
 #include <cassert>
@@ -17,7 +17,7 @@ namespace renn {
 // it doesn't accept and return any arguments
 // MOVABLE
 
-class ThreadPool : public sched::IScheduler {
+class ThreadPool : public core::IExecutor {
   public:
     explicit ThreadPool(size_t num_threads);
 
@@ -56,8 +56,8 @@ class ThreadPool : public sched::IScheduler {
     // !!! : bc we want to fulfill the condition that start() and stop() are called from a single-managing thread
     // !!! : and are not concurrent with each other.
     //
-    std::atomic<bool> started_;
-    std::atomic<bool> stopped_;
+    std::atomic<bool> started_{false};
+    std::atomic<bool> stopped_{false};
 
     /// TODO::: to ensure that using two atomic flags is a better choice than using an atomic state
     /// ...alignment to cache-line, bc enum is just 1 byte...??

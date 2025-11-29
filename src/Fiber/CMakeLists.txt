@@ -27,5 +27,5 @@ TARGET_INCLUDE_DIRECTORIES(Fiber PUBLIC
 TARGET_LINK_LIBRARIES(Fiber PUBLIC
   third_party_vvv
   Coroutine
-  Scheduling
+  Runtime
 )

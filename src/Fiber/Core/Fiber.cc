@@ -1,17 +1,22 @@
 #include "Fiber.hpp"
+#include "Core/Syscalls.hpp"
 #include "Coro.hpp"
+#include "Handle.hpp"
+#include <cassert>
 
 namespace renn {
 
 thread_local Fiber* Fiber::current_ = nullptr;
 
-Fiber::Fiber(sched::IScheduler& sched, Routine routine)
-    : sched_(sched),
-      coro_(std::move(routine)) {}
+Fiber::Fiber(renn::RtView& rt, renn::Renn renn)
+    : coro_(std::move(renn)),
+      runtime_(rt),
+      reason_(fiber::YieldFiberTag{}) {}
 
 void Fiber::schedule() {
-    sched_.submit([this] {
-        this->step();
+    get_renn_scheduler(runtime_).submit([this] {
+        /* scheduling new step */
+        step();
     });
 }
 
@@ -23,12 +28,14 @@ void Fiber::step() {
 
     current_ = prev_fiber;
 
-    /* polling the completion */
-    if (!get_coro().is_done()) {
-        /* re-subscription (or rescheduling) */
-        this->schedule();
-    } else {
+    if (coro_.is_done()) {
         delete this;
+        return;
+    }
+
+    if (handler_) {
+        auto hd = std::move(handler_);
+        hd(fiber::FiberHandle(this));
     }
 }
 
@@ -47,7 +54,9 @@ Coroutine& Fiber::get_coro() {
 }
 
 /* get internal scheduler */
-sched::IScheduler& Fiber::current_scheduler() const {
-    return sched_;
+renn::RtView& Fiber::current_scheduler() {
+    return runtime_;
 }
+
+
 };  // namespace renn

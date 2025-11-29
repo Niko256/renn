@@ -1,23 +1,18 @@
 #pragma once
 
 #include "../Coroutine/Coro.hpp"
-#include "../Coroutine/Routine.hpp"
-#include "../Scheduling/IScheduler.hpp"
+#include "../Runtime/Core/RtView.hpp"
+#include "Core/Syscalls.hpp"
+#include "Handle.hpp"
+#include "Utils.hpp"
 #include <vvv/list.hpp>
 
 namespace renn {
 
-// Fiber = Stackful coroutine x Scheduler
-
+/* Fiber = Stackful coroutine x Scheduler */
 class Fiber : public vvv::IntrusiveListNode<Fiber> {
-  private:
-    renn::Coroutine coro_;
-    sched::IScheduler& sched_;
-
-    static thread_local Fiber* current_;
-
   public:
-    explicit Fiber(sched::IScheduler&, Routine);
+    explicit Fiber(renn::RtView&, renn::Renn);
 
     void schedule();
 
@@ -27,9 +22,22 @@ class Fiber : public vvv::IntrusiveListNode<Fiber> {
 
     static Fiber* current();
 
+    void suspend(fiber::Syscall, fiber::SuspendHandler);
+
+    friend renn::fiber::FiberHandle;
+
+  private:
     Coroutine& get_coro();
 
-    [[nodiscard]] sched::IScheduler& current_scheduler() const;
+    [[nodiscard]] renn::RtView& current_scheduler();
+
+  private:
+    renn::Coroutine coro_;
+    renn::RtView runtime_;
+    renn::fiber::Syscall reason_;
+    renn::fiber::SuspendHandler handler_;
+
+    static thread_local Fiber* current_;
 };
 
 };  // namespace renn

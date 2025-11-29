@@ -1,8 +1,11 @@
-#include "../src/Scheduling/ThreadPool/ThreadPool.hpp"
+#include "../src/Runtime/ThreadPool/ThreadPool.hpp"
 #include "../src/Sync/WaitGroup.hpp"
 
 #include "../src/Fiber/Core/Fiber.hpp"
 #include "../src/Fiber/ExeCtrl/Go.hpp"
+#include "IExecutor.hpp"
+#include "IScheduler.hpp"
+#include "RtView.hpp"
 #include <arpa/inet.h>
 #include <filesystem>
 #include <format>
@@ -29,13 +32,21 @@ class FiberTest : public ::testing::Test {
     void TearDown() override {
         sched_->stop();
     }
+
+    renn::RtView get_test_runtime_view() {
+        renn::core::IExecutor* exec = sched_.get();
+
+        renn::timers::IScheduler* timer_sched = nullptr;
+
+        return {exec, timer_sched};
+    }
 };
 
 TEST_F(FiberTest, SimpleExecution) {
     WaitGroup wg;
     wg.add(1);
 
-    renn::go(*sched_, [&wg] {
+    renn::go(get_test_runtime_view(), [&wg] {
         // fmt::print("Here we go...");
         wg.done();
     });
@@ -50,8 +61,10 @@ TEST_F(FiberTest, AfewSteps) {
 
     wg.add(kFibersCount);
 
+    auto rt = get_test_runtime_view();
+
     for (int i = 0; i < kFibersCount; ++i) {
-        renn::go(*sched_, [&wg, i] {
+        renn::go(rt, [&wg, i] {
             std::cout << std::format("Fiber {} completed", i) << std::endl;
             wg.done();
         });

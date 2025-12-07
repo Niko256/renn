@@ -18,8 +18,6 @@ TARGET_LINK_LIBRARIES(TrystCore INTERFACE
 )
 
 SET(TrystImpl
-  Impl/Promise.cc
-  Impl/Future.cc
   Impl/Contract.cc
   Impl/Get.cc
 )

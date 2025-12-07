@@ -2,10 +2,11 @@
 
 #include "../../Utils/Callback.hpp"
 #include "../../Utils/Result.hpp"
+#include "Callback.hpp"
 #include "StateMachine.hpp"
 #include <optional>
 
-namespace renn {
+namespace renn::tryst {
 
 template <typename T>
 class SharedState {
@@ -19,14 +20,18 @@ class SharedState {
 
   private:
     StateMachine state_machine_;
+
+    /* Lazy-initialization */
     std::optional<utils::Result<T>> result_;
-    std::optional<Callback<T>> callback_;
+
+    /* Lazy-initialization */
+    std::optional<UnpackedCallback<T>> callback_;
 };
 
 /* ///////////////////////////////////////////////////////////// */
 
 template <typename T>
-void SharedState<T>::consume(renn::Callback<T> cb) {
+void SharedState<T>::consume(UnpackedCallback<T> cb) {
     callback_.emplace(std::move(cb));
 
     if (state_machine_.consume()) {
@@ -45,10 +50,14 @@ void SharedState<T>::produce(utils::Result<T> res) {
 
 template <typename T>
 void SharedState<T>::tryst() {
+    /* [Pre-condition] :
+     *  > result is set => producer comes to the shared state
+     *  > callback is set => consumer comes to shared state
+     */
     if (result_) {
         (*callback_)(std::move(result_));
         delete this;
     }
 }
 
-};  // namespace renn
+};  // namespace renn::tryst

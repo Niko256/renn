@@ -5,14 +5,31 @@
 
 namespace renn::tryst {
 
+/**
+ * @enum States
+ * @brief State flags for the rendezvouz pattern
+ *
+ * This enum represents possible states in consumer-producer handshake.
+ *
+ * => Protocol ensures that either :
+ *  > Consumer arrives first, waits for producer
+ *  > Producer arrives first, waits for consumer
+ *  > Both arrive simultaneously (race condition handled by atomic fetch_or operation)
+ */
+
 enum States : uint64_t {
     INIT = 0,
-    CONSUMER = 1,                /* consumer comes to shared state */
-    PRODUCER = 2,                /* producer comes to shared state */
-    TRYST = PRODUCER | CONSUMER, /* consumer and producer met => date => callback + result */
+    CONSUMER = 1,
+    PRODUCER = 2,
+    TRYST = PRODUCER | CONSUMER,
 };
 
-/* Wait-free */
+/**
+ * @class StateMachine
+ * @brief Wait-free finite state machine for [producer, consumer] synchronization.
+ *
+ * [Symmetric] : Producer and consumer has identical arrival logic.
+ */
 class StateMachine {
   public:
     bool consume();

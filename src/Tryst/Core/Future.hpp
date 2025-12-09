@@ -3,9 +3,20 @@
 #include "Callback.hpp"
 #include "SharedState.hpp"
 #include <../../Utils/Result.hpp>
+#include <concepts>
+#include <type_traits>
 #include <utility>
 
 namespace renn::tryst {
+
+/**
+ * @class Future
+ *
+ * Once created, future can be moved but no be copied,
+ *    ensuring single ownership of the result
+ *
+ * @tparam T represents the value expected from the async operation
+ */
 
 template <typename T>
 class Future {
@@ -24,12 +35,29 @@ class Future {
 
     ~Future();
 
+    /**
+     * @brief Registers a callback to consume the result when available.
+     *
+     * => callback will be invoked when the Promise produces the result
+     *
+     * @pre Future must be valid (has an associated SharedState).
+     * @post Future is moved from and no longer valid (one-shot).
+     */
     void consume(Callback<T>) &&;
 
     bool valid() const;
 
+    /**
+     * @brief Releases ownership without consuming the result.
+     * => Useful if you want to discard a Future without waiting for the result.
+     */
     void reset();
 
+
+    /**
+     * @brief Transfer ownership of the shared state to the caller
+     * @post this->valid() == false.
+     */
     SharedState<T>* release_state();
 
   private:
@@ -45,11 +73,15 @@ Future<T>::Future(SharedState<T>* state)
 
 template <typename T>
 void Future<T>::consume(Callback<T> cb) && {
-    RENN_ASSERT(valid());
+    RENN_ASSERT(valid(), "Future::consume called on invalid future");
 
     auto adapter = [cb = std::move(cb)](utils::Result<T> res) mutable {
-        if (res.has_value()) {
-            cb(std::move(*res));
+        try {
+            if (res.has_value()) {
+                cb(std::move(*res));
+            }
+        } catch (...) {
+            std::terminate();
         }
     };
 

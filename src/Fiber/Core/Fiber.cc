@@ -1,13 +1,16 @@
 #include "Fiber.hpp"
 #include "Coro.hpp"
+#include "Handle.hpp"
+#include "Syscalls.hpp"
 
 namespace renn {
 
 thread_local Fiber* Fiber::current_ = nullptr;
 
 Fiber::Fiber(sched::IScheduler& sched, Routine routine)
-    : sched_(sched),
-      coro_(std::move(routine)) {}
+    : coro_(std::move(routine)),
+      sched_(sched),
+      reason_(YieldTag{}) {}
 
 void Fiber::schedule() {
     sched_.submit([this] {
@@ -23,13 +26,26 @@ void Fiber::step() {
 
     current_ = prev_fiber;
 
+
     /* polling the completion */
-    if (!get_coro().is_done()) {
-        /* re-subscription (or rescheduling) */
-        this->schedule();
-    } else {
+    if (coro_.is_done()) {
+        /* std::cerr << "DEBUG: Fiber " << this << " Done." << std::endl; */
         delete this;
+        return;
     }
+
+    if (handler_) {
+        auto handle = std::move(handler_);
+        handle(FiberHandle(this));
+    } else {
+        /* ??? */
+    }
+}
+
+void Fiber::suspend(Syscall reason, SuspendHandler sc_handler) {
+    reason_ = reason;
+    handler_ = std::move(sc_handler);
+    coro_.suspend();
 }
 
 /* get current fiber */

@@ -1,10 +1,13 @@
 #include "Yield.hpp"
+#include "Handle.hpp"
+#include "Syscalls.hpp"
 
 namespace renn::fiber {
 
 void yield() {
-    auto f = renn::Fiber::current();
-    f->get_coro().suspend();
+    renn::Fiber::current()->suspend(YieldTag{}, [](FiberHandle h) {
+        h.schedule();
+    });
 }
 
 };  // namespace renn::fiber

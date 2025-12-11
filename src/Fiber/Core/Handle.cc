@@ -4,6 +4,8 @@
 
 namespace renn {
 
+FiberHandle::FiberHandle(Fiber* f) : fiber_(f) {}
+
 bool FiberHandle::is_valid() const {
     return fiber_ != nullptr;
 }

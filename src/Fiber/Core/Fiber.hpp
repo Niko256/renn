@@ -3,25 +3,26 @@
 #include "../Coroutine/Coro.hpp"
 #include "../Coroutine/Routine.hpp"
 #include "../Scheduling/IScheduler.hpp"
+#include "Handle.hpp"
+#include "Syscalls.hpp"
+#include "function2/function2.hpp"
 #include <vvv/list.hpp>
 
 namespace renn {
 
-// Fiber = Stackful coroutine x Scheduler
+using SuspendHandler = fu2::unique_function<void(FiberHandle)>;
+
+/*** Fiber = Stackful coroutine x Scheduler ***/
 
 class Fiber : public vvv::IntrusiveListNode<Fiber> {
-  private:
-    renn::Coroutine coro_;
-    sched::IScheduler& sched_;
-
-    static thread_local Fiber* current_;
-
   public:
     explicit Fiber(sched::IScheduler&, Routine);
 
     void schedule();
 
     void step();
+
+    void suspend(Syscall reason, SuspendHandler sc_handler);
 
     static void set_current(Fiber*);
 
@@ -30,6 +31,13 @@ class Fiber : public vvv::IntrusiveListNode<Fiber> {
     Coroutine& get_coro();
 
     [[nodiscard]] sched::IScheduler& current_scheduler() const;
+
+  private:
+    renn::Coroutine coro_;
+    sched::IScheduler& sched_;
+    Syscall reason_;
+    SuspendHandler handler_;
+    static thread_local Fiber* current_;
 };
 
 };  // namespace renn

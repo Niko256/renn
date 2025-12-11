@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Fiber.hpp"
-
 namespace renn {
+
+class Fiber;
 
 class FiberHandle {
   public:
+    explicit FiberHandle(Fiber* fiber) : fiber_(fiber) {}
+
     FiberHandle() = default;
 
     ~FiberHandle() = default;
@@ -23,9 +25,6 @@ class FiberHandle {
     Fiber* release();
 
     void schedule();
-
-  private:
-    FiberHandle(Fiber* fiber) : fiber_(fiber) {}
 
   private:
     renn::Fiber* fiber_ = nullptr;
